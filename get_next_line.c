@@ -6,7 +6,7 @@
 /*   By: jmouline <jul.moulines@free.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/11/19 17:18:15 by jmouline          #+#    #+#             */
-/*   Updated: 2022/11/20 13:05:16 by jmouline         ###   ########.fr       */
+/*   Updated: 2022/11/20 13:36:42 by jmouline         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,18 +21,17 @@ char	*ft_good_buffer(int fd, char *buffer)
 		buffer = malloc(1);
 	tmp = malloc(BUFFER_SIZE + 1);
 	count_read = 1;
-	if (!tmp)
+	if (!tmp || !buffer)
 		return (NULL);
 	while (!ft_strchr(tmp, '\n') && count_read != 0)
 	{
 		count_read = read(fd, tmp, BUFFER_SIZE);
 		if (count_read == -1)
-		{
-			free(tmp);
-			return (NULL);
-		}
+			return (free(tmp), NULL);
 		tmp[count_read] = 0;
-		buffer = realloc(buffer, BUFFER_SIZE + ft_strlen(buffer) - 1);
+		buffer = realloc(buffer, ft_strlen(tmp) + ft_strlen(buffer));
+		if (!buffer)
+			return (NULL);
 		buffer = ft_strjoin(buffer, tmp);
 		if (!buffer)
 			return (NULL);
@@ -47,9 +46,13 @@ char	*ft_get_line(char *buffer)
 	char	*line;
 
 	i = 0;
+	if (!buffer)
+		return (NULL);
 	while (buffer[i] != '\n' && buffer[i])
 		i++;
 	line = malloc(i + 2);
+	if (!line)
+		return (NULL);
 	i = 0;
 	while (buffer[i] != '\n' && buffer[i])
 	{
@@ -73,9 +76,13 @@ char	*ft_next_buffer(char *buffer)
 
 	i = 0;
 	j = 0;
+	if (!buffer)
+		return (NULL);
 	while (buffer[i] && buffer[i] != '\n')
 		i++;
 	str = malloc(ft_strlen(buffer) - i + 1);
+	if (!str)
+		return (NULL);
 	i++;
 	while (buffer[i])
 		str[j++] = buffer[i++];
@@ -101,7 +108,7 @@ char	*get_next_line(int fd)
 		return (NULL);
 	return (line);
 }
-
+/*
 #include <fcntl.h>
 #include <stdio.h>
 int main()
@@ -114,8 +121,10 @@ int main()
 	while (i < 10)
 	{
 		test = get_next_line(fd);
+		if (!test)
+			return (printf("\nRien a afficher !\n"));
 		printf(": %s\n", test);
 		free(test);
 		i++;
 	}
-}
+}*/
