@@ -1,7 +1,7 @@
 NAME = get_next_line
 
 CC = cc
-CFLAGS = -Wall -Wextra -Werror -D BUFFER_SIZE=7 -o
+CFLAGS = -Wall -Wextra -Werror -D BUFFER_SIZE=100 -o
 AR = ar crs
 RM = rm -f
 NM = norminette

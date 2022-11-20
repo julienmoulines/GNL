@@ -6,7 +6,7 @@
 /*   By: jmouline <jul.moulines@free.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/11/19 17:18:15 by jmouline          #+#    #+#             */
-/*   Updated: 2022/11/20 14:12:17 by jmouline         ###   ########.fr       */
+/*   Updated: 2022/11/20 14:29:51 by jmouline         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -72,12 +72,12 @@ char	*ft_get_line(char *buffer)
 		line[i] = buffer[i];
 		i++;
 	}
-	if (buffer[i] == '\n')
-	{
+	i--;
+	if (buffer[i++] == '\n')
 		line[i] = buffer[i];
-		i++;
-	}
 	line[i] = 0;
+	if (!i)
+		return (NULL);
 	return (line);
 }
 
@@ -136,8 +136,8 @@ int main()
 	{
 		test = get_next_line(fd);
 		if (!test)
-			return (printf("\nRien a afficher !\n"));
-		printf(": %s\n", test);
+			return (printf("Plus rien à afficher !\n"));
+		printf("ligne %d : %s\n", i, test);
 		free(test);
 		i++;
 	}

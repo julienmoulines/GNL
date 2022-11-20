@@ -6,7 +6,7 @@
 /*   By: jmouline <jul.moulines@free.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/11/19 17:19:34 by jmouline          #+#    #+#             */
-/*   Updated: 2022/11/20 14:11:35 by jmouline         ###   ########.fr       */
+/*   Updated: 2022/11/20 14:29:14 by jmouline         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -73,6 +73,7 @@ char	*ft_strjoin(const char *s1, const char *s2)
 	len_s1 = ft_strlen(s1);
 	len_s2 = ft_strlen(s2);
 	dest = malloc(len_s1 + len_s2 + 1);
+	len_s1++;
 	while (len_s1 + len_s2 > 0)
 		dest[len_s1-- + len_s2] = 0;
 	if (!dest)
