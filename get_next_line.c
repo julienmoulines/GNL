@@ -6,7 +6,7 @@
 /*   By: jmouline <jul.moulines@free.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/11/19 17:18:15 by jmouline          #+#    #+#             */
-/*   Updated: 2022/11/20 12:54:37 by jmouline         ###   ########.fr       */
+/*   Updated: 2022/11/20 13:05:16 by jmouline         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,7 +15,7 @@
 char	*ft_good_buffer(int fd, char *buffer)
 {
 	char	*tmp;
-	int	count_read;
+	int		count_read;
 
 	if (!buffer)
 		buffer = malloc(1);
@@ -43,8 +43,8 @@ char	*ft_good_buffer(int fd, char *buffer)
 
 char	*ft_get_line(char *buffer)
 {
-	int	i;
-	char *line;
+	int		i;
+	char	*line;
 
 	i = 0;
 	while (buffer[i] != '\n' && buffer[i])
@@ -67,8 +67,8 @@ char	*ft_get_line(char *buffer)
 
 char	*ft_next_buffer(char *buffer)
 {
-	int	i;
-	int	j;
+	int		i;
+	int		j;
 	char	*str;
 
 	i = 0;
@@ -85,7 +85,7 @@ char	*ft_next_buffer(char *buffer)
 
 char	*get_next_line(int fd)
 {
-	char	*line;
+	char		*line;
 	static char	*buffer_final;
 
 	if (!fd || BUFFER_SIZE <= 0)
