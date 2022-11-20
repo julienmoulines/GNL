@@ -6,7 +6,7 @@
 /*   By: jmouline <jul.moulines@free.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/11/19 17:19:34 by jmouline          #+#    #+#             */
-/*   Updated: 2022/11/20 12:54:24 by jmouline         ###   ########.fr       */
+/*   Updated: 2022/11/20 14:11:35 by jmouline         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -89,4 +89,21 @@ size_t	ft_strlen(const char *s)
 	while (s[i])
 		i++;
 	return (i);
+}
+
+void	*ft_memcpy(void *dest, const void *src, size_t n)
+{
+	char	*d;
+
+	d = (char *)dest;
+	if (!dest && !src)
+		return (dest);
+	while (n > 0)
+	{
+		*(char *)d = *(char *)src;
+		d++;
+		src++;
+		n--;
+	}
+	return (dest);
 }

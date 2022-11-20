@@ -6,11 +6,24 @@
 /*   By: jmouline <jul.moulines@free.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/11/19 17:18:15 by jmouline          #+#    #+#             */
-/*   Updated: 2022/11/20 13:38:35 by jmouline         ###   ########.fr       */
+/*   Updated: 2022/11/20 14:12:17 by jmouline         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "get_next_line.h"
+
+char	*ft_realloc(char *buffer, size_t size)
+{
+	char	*tmp;
+
+	tmp = malloc(ft_strlen(buffer));
+	tmp = ft_memcpy(tmp, buffer, size);
+	free(buffer);
+	buffer = malloc(size);
+	buffer = ft_memcpy(buffer, tmp, size);
+	free(tmp);
+	return (buffer);
+}
 
 char	*ft_good_buffer(int fd, char *buffer)
 {
@@ -29,7 +42,7 @@ char	*ft_good_buffer(int fd, char *buffer)
 		if (count_read == -1)
 			return (free(tmp), NULL);
 		tmp[count_read] = 0;
-		buffer = realloc(buffer, ft_strlen(tmp) + ft_strlen(buffer));
+		buffer = ft_realloc(buffer, ft_strlen(tmp) + ft_strlen(buffer));
 		if (!buffer)
 			return (NULL);
 		buffer = ft_strjoin(buffer, tmp);
@@ -108,6 +121,7 @@ char	*get_next_line(int fd)
 		return (NULL);
 	return (line);
 }
+
 /*
 #include <fcntl.h>
 #include <stdio.h>
