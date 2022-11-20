@@ -5,142 +5,67 @@
 /*                                                    +:+ +:+         +:+     */
 /*   By: jmouline <jul.moulines@free.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2022/11/16 16:57:38 by jmouline          #+#    #+#             */
-/*   Updated: 2022/11/18 12:58:12 by jmouline         ###   ########.fr       */
+/*   Created: 2022/11/19 17:18:15 by jmouline          #+#    #+#             */
+/*   Updated: 2022/11/20 12:54:37 by jmouline         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "get_next_line.h"
-#include <unistd.h>
-#include <stdio.h>
-#include <fcntl.h>
 
-
-#include "get_next_line.h"
-
-size_t	ft_strlen(char *s)
+char	*ft_good_buffer(int fd, char *buffer)
 {
-	size_t	i;
+	char	*tmp;
+	int	count_read;
 
-	i = 0;
-	if (!s)
-		return (0);
-	while (s[i] != '\0')
-		i++;
-	return (i);
-}
-
-char	*ft_strchr(char *s, int c)
-{
-	int	i;
-
-	i = 0;
-	if (!s)
-		return (0);
-	if (c == '\0')
-		return ((char *)&s[ft_strlen(s)]);
-	while (s[i] != '\0')
-	{
-		if (s[i] == (char) c)
-			return ((char *)&s[i]);
-		i++;
-	}
-	return (0);
-}
-
-char	*ft_strjoin_normed(char *s1, char *s2, char *dest)
-{
-	size_t	len_s1;
-	size_t	len_s2;
-	size_t	i;
-
-	if (!dest)
+	if (!buffer)
+		buffer = malloc(1);
+	tmp = malloc(BUFFER_SIZE + 1);
+	count_read = 1;
+	if (!tmp)
 		return (NULL);
-	if (!s1)
-		return ((char *)s2);
-	if (!s2)
-		return ((char *)s1);
-	len_s1 = ft_strlen(s1);
-	len_s2 = ft_strlen(s2);
-	i = 0;
-	if (i < (len_s1 + len_s2))
+	while (!ft_strchr(tmp, '\n') && count_read != 0)
 	{
-		while (i < len_s1)
+		count_read = read(fd, tmp, BUFFER_SIZE);
+		if (count_read == -1)
 		{
-			dest[i] = s1[i];
-			i++;
-		}
-		len_s1 = 0;
-		while (s2[len_s1])
-			dest[i++] = s2[len_s1++];
-	}
-	return (dest);
-}
-
-char	*ft_strjoin(char *s1, char *s2)
-{
-	size_t	len_s1;
-	size_t	len_s2;
-	char	*dest;
-
-	if (!s1)
-		return ((char *)s2);
-	if (!s2)
-		return ((char *)s1);
-	len_s1 = ft_strlen(s1);
-	len_s2 = ft_strlen(s2);
-	dest = calloc(len_s1 + len_s2 + 1, 1);
-	if (!dest)
-		return (NULL);
-	dest = ft_strjoin_normed(s1, s2, dest);
-	return (dest);
-}
-
-char	*ft_buffer(char *buff, int fd)
-{
-	int check_read;
-	char	*str;
-
-	str = malloc((BUFFER_SIZE + 1));
-	if (!str)
-		return (NULL);
-	while (!ft_strchr(str, '\n') && check_read != 0)
-	{
-		check_read = read(fd, str, BUFFER_SIZE);
-		if (check_read == -1)
-		{
-			free(str);
+			free(tmp);
 			return (NULL);
 		}
-		str[check_read] = 0;
-		buff = ft_strjoin(buff, str);	
-		//printf("%s\n", buff);
+		tmp[count_read] = 0;
+		buffer = realloc(buffer, BUFFER_SIZE + ft_strlen(buffer) - 1);
+		buffer = ft_strjoin(buffer, tmp);
+		if (!buffer)
+			return (NULL);
 	}
-	//free(str);
-	return (buff);
+	free(tmp);
+	return (buffer);
 }
 
-char	*ft_ligne(char *ligne, char *buff)
+char	*ft_get_line(char *buffer)
 {
 	int	i;
+	char *line;
 
 	i = 0;
-	while (buff[i] && buff[i] != '\n')
+	while (buffer[i] != '\n' && buffer[i])
 		i++;
-	ligne = malloc(i + 2);
+	line = malloc(i + 2);
 	i = 0;
-	while (buff[i] != '\n' && buff[i])
+	while (buffer[i] != '\n' && buffer[i])
 	{
-		ligne[i] = buff[i];
+		line[i] = buffer[i];
 		i++;
 	}
-	ligne[i] = buff[i];	
-	ligne[i + 1] = 0;
-	//free(buff);
-	return (ligne);
+	if (buffer[i] == '\n')
+	{
+		line[i] = buffer[i];
+		i++;
+	}
+	line[i] = 0;
+	return (line);
 }
 
-char	*ft_new_line(char *buff)
+char	*ft_next_buffer(char *buffer)
 {
 	int	i;
 	int	j;
@@ -148,48 +73,49 @@ char	*ft_new_line(char *buff)
 
 	i = 0;
 	j = 0;
-	while (buff[i] && buff[i] != '\n')
+	while (buffer[i] && buffer[i] != '\n')
 		i++;
-	str = malloc(ft_strlen(buff) - i + 1);
+	str = malloc(ft_strlen(buffer) - i + 1);
 	i++;
-	while (buff[i])
-		str[j++] = buff[i++];
+	while (buffer[i])
+		str[j++] = buffer[i++];
 	str[j] = 0;
 	return (str);
 }
 
 char	*get_next_line(int fd)
 {
-	char	*ligne;
-	static	char *buff;
+	char	*line;
+	static char	*buffer_final;
 
-	if (!fd)
+	if (!fd || BUFFER_SIZE <= 0)
 		return (NULL);
-	ligne = 0;
-	buff = ft_buffer(buff, fd);
-	if (!buff)
+	buffer_final = ft_good_buffer(fd, buffer_final);
+	if (!buffer_final)
 		return (NULL);
-	ligne = ft_ligne(ligne, buff);
-	buff = ft_new_line(buff);
-	if (!ligne)
+	line = ft_get_line(buffer_final);
+	if (!line)
 		return (NULL);
-	return (ligne);
+	buffer_final = ft_next_buffer(buffer_final);
+	if (!buffer_final)
+		return (NULL);
+	return (line);
 }
 
-int	main(void)
+#include <fcntl.h>
+#include <stdio.h>
+int main()
 {
-	char	*line;
-	int		i;
-	int		fd1;
-	fd1 = open("test.txt", O_RDONLY);
-	i = 1;
+	int fd;
+	int i = 1;
+	fd = open("test.txt", O_RDONLY);
+	char *test;
+
 	while (i < 10)
 	{
-		line = get_next_line(fd1);
-		printf("line [%d]: %s", i, line);
-		//free(line);
+		test = get_next_line(fd);
+		printf(": %s\n", test);
+		free(test);
 		i++;
 	}
-	close(fd1);
-	return (0);
 }
