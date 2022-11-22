@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   get_next_line.c                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: jmouline <jul.moulines@free.fr>            +#+  +:+       +#+        */
+/*   By: jmouline <jmouline@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/11/19 17:18:15 by jmouline          #+#    #+#             */
-/*   Updated: 2022/11/20 14:29:51 by jmouline         ###   ########.fr       */
+/*   Updated: 2022/11/22 22:01:55 by jmouline         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,12 +15,22 @@
 char	*ft_realloc(char *buffer, size_t size)
 {
 	char	*tmp;
+	int		len;
+	int		i;
+	int		j;
 
-	tmp = malloc(ft_strlen(buffer));
-	tmp = ft_memcpy(tmp, buffer, size);
+	i = 0;
+	j = 0;
+	len = ft_strlen(buffer);
+	tmp = malloc(len + 1);
+	while (i < len)
+		tmp[i++] = 0;
+	tmp = ft_memcpy(tmp, buffer, len);
 	free(buffer);
-	buffer = malloc(size);
-	buffer = ft_memcpy(buffer, tmp, size);
+	buffer = malloc(size + 1);
+	while (j < size)
+		buffer[j++] = 0;
+	buffer = ft_memcpy(buffer, tmp, len);
 	free(tmp);
 	return (buffer);
 }
@@ -36,7 +46,7 @@ char	*ft_good_buffer(int fd, char *buffer)
 	count_read = 1;
 	if (!tmp || !buffer)
 		return (NULL);
-	while (!ft_strchr(tmp, '\n') && count_read != 0)
+	while (!ft_strchr(tmp, '\n') && !ft_strchr(buffer, '\n') && count_read != 0)
 	{
 		count_read = read(fd, tmp, BUFFER_SIZE);
 		if (count_read == -1)
@@ -72,12 +82,12 @@ char	*ft_get_line(char *buffer)
 		line[i] = buffer[i];
 		i++;
 	}
-	i--;
-	if (buffer[i++] == '\n')
+	if (buffer[i] == '\n')
+	{
 		line[i] = buffer[i];
+		i++;
+	}
 	line[i] = 0;
-	if (!i)
-		return (NULL);
 	return (line);
 }
 
@@ -100,6 +110,7 @@ char	*ft_next_buffer(char *buffer)
 	while (buffer[i])
 		str[j++] = buffer[i++];
 	str[j] = 0;
+	//free(buffer);
 	return (str);
 }
 
@@ -122,7 +133,6 @@ char	*get_next_line(int fd)
 	return (line);
 }
 
-/*
 #include <fcntl.h>
 #include <stdio.h>
 int main()
@@ -131,14 +141,13 @@ int main()
 	int i = 1;
 	fd = open("test.txt", O_RDONLY);
 	char *test;
-
-	while (i < 10)
+	while (i < 9)
 	{
 		test = get_next_line(fd);
 		if (!test)
-			return (printf("Plus rien à afficher !\n"));
-		printf("ligne %d : %s\n", i, test);
+			return (printf("\nRien a afficher !\n"));
+		printf(": %s\n", test);
 		free(test);
 		i++;
 	}
-}*/
+}
