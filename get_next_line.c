@@ -3,34 +3,28 @@
 /*                                                        :::      ::::::::   */
 /*   get_next_line.c                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: jmouline <jmouline@student.42.fr>          +#+  +:+       +#+        */
+/*   By: jmouline <jul.moulines@free.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/11/19 17:18:15 by jmouline          #+#    #+#             */
-/*   Updated: 2022/11/22 22:01:55 by jmouline         ###   ########.fr       */
+/*   Updated: 2022/11/23 21:47:01 by jmouline         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "get_next_line.h"
+#include <fcntl.h>
+#include <stdio.h>
 
 char	*ft_realloc(char *buffer, size_t size)
 {
 	char	*tmp;
-	int		len;
-	int		i;
-	int		j;
 
-	i = 0;
-	j = 0;
-	len = ft_strlen(buffer);
-	tmp = malloc(len + 1);
-	while (i < len)
-		tmp[i++] = 0;
-	tmp = ft_memcpy(tmp, buffer, len);
+	if (!buffer)
+		return (NULL);
+	tmp = malloc(ft_strlen(buffer));
+	tmp = ft_memcpy(tmp, buffer, size);
 	free(buffer);
-	buffer = malloc(size + 1);
-	while (j < size)
-		buffer[j++] = 0;
-	buffer = ft_memcpy(buffer, tmp, len);
+	buffer = malloc(size);
+	buffer = ft_memcpy(buffer, tmp, size);
 	free(tmp);
 	return (buffer);
 }
@@ -46,13 +40,13 @@ char	*ft_good_buffer(int fd, char *buffer)
 	count_read = 1;
 	if (!tmp || !buffer)
 		return (NULL);
-	while (!ft_strchr(tmp, '\n') && !ft_strchr(buffer, '\n') && count_read != 0)
+	while (!ft_strchr(tmp, '\n') && count_read != 0)
 	{
 		count_read = read(fd, tmp, BUFFER_SIZE);
 		if (count_read == -1)
 			return (free(tmp), NULL);
 		tmp[count_read] = 0;
-		buffer = ft_realloc(buffer, ft_strlen(tmp) + ft_strlen(buffer));
+		buffer = realloc(buffer, ft_strlen(tmp) + ft_strlen(buffer));
 		if (!buffer)
 			return (NULL);
 		buffer = ft_strjoin(buffer, tmp);
@@ -86,8 +80,10 @@ char	*ft_get_line(char *buffer)
 	{
 		line[i] = buffer[i];
 		i++;
+		line[i] = 0;
 	}
-	line[i] = 0;
+	else
+		line[i] = 0;
 	return (line);
 }
 
@@ -110,7 +106,6 @@ char	*ft_next_buffer(char *buffer)
 	while (buffer[i])
 		str[j++] = buffer[i++];
 	str[j] = 0;
-	//free(buffer);
 	return (str);
 }
 
@@ -133,20 +128,21 @@ char	*get_next_line(int fd)
 	return (line);
 }
 
+
 #include <fcntl.h>
 #include <stdio.h>
 int main()
 {
 	int fd;
-	int i = 1;
+	int i = 0;
 	fd = open("test.txt", O_RDONLY);
 	char *test;
-	while (i < 9)
+	while (i < 11)
 	{
 		test = get_next_line(fd);
 		if (!test)
-			return (printf("\nRien a afficher !\n"));
-		printf(": %s\n", test);
+			return (printf("Plus rien à afficher !\n"));
+		printf("ligne %d : %s\n", i + 1, test);	
 		free(test);
 		i++;
 	}
