@@ -5,30 +5,27 @@
 /*                                                    +:+ +:+         +:+     */
 /*   By: jmouline <jul.moulines@free.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2022/11/19 17:19:34 by jmouline          #+#    #+#             */
-/*   Updated: 2022/11/20 14:29:14 by jmouline         ###   ########.fr       */
+/*   Created: 2022/12/03 13:54:25 by jmouline          #+#    #+#             */
+/*   Updated: 2022/12/03 20:31:06 by jmouline         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "get_next_line.h"
 
-char	*ft_strchr(const char *s, int c)
+int	ft_strchr(const char *s, int c)
 {
+	int	i;
+
+	i = 0;
 	if (!s)
-		return (NULL);
-	if ((char)c == 0)
+		return (-2);
+	while (s[i])
 	{
-		while (*s)
-			s++;
-		return ((char *)s);
+		if (s[i] == (char)c)
+			return (i);
+		i++;
 	}
-	while (*s)
-	{
-		if (*s == (char)c)
-			return ((char *)s);
-		s++;
-	}
-	return (NULL);
+	return (-1);
 }
 
 static char	*ft_strjoin_normed(const char *s1, const char *s2, char *dest)
@@ -53,7 +50,7 @@ static char	*ft_strjoin_normed(const char *s1, const char *s2, char *dest)
 			dest[i] = s1[i];
 			i++;
 		}
-		len_s1 = 0;
+		len_s1 = '\0';
 		while (s2[len_s1])
 			dest[i++] = s2[len_s1++];
 	}
@@ -65,7 +62,9 @@ char	*ft_strjoin(const char *s1, const char *s2)
 	size_t	len_s1;
 	size_t	len_s2;
 	char	*dest;
+	size_t	i;
 
+	i = 0;
 	if (!s1)
 		return ((char *)s2);
 	if (!s2)
@@ -73,12 +72,13 @@ char	*ft_strjoin(const char *s1, const char *s2)
 	len_s1 = ft_strlen(s1);
 	len_s2 = ft_strlen(s2);
 	dest = malloc(len_s1 + len_s2 + 1);
-	len_s1++;
-	while (len_s1 + len_s2 > 0)
-		dest[len_s1-- + len_s2] = 0;
+	while (i < len_s1 + len_s2 + 1)
+		dest[i++] = '\0';
 	if (!dest)
 		return (NULL);
 	dest = ft_strjoin_normed(s1, s2, dest);
+	if (!dest)
+		return (NULL);
 	return (dest);
 }
 
@@ -90,21 +90,4 @@ size_t	ft_strlen(const char *s)
 	while (s[i])
 		i++;
 	return (i);
-}
-
-void	*ft_memcpy(void *dest, const void *src, size_t n)
-{
-	char	*d;
-
-	d = (char *)dest;
-	if (!dest && !src)
-		return (dest);
-	while (n > 0)
-	{
-		*(char *)d = *(char *)src;
-		d++;
-		src++;
-		n--;
-	}
-	return (dest);
 }

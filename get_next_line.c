@@ -5,145 +5,135 @@
 /*                                                    +:+ +:+         +:+     */
 /*   By: jmouline <jul.moulines@free.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2022/11/19 17:18:15 by jmouline          #+#    #+#             */
-/*   Updated: 2022/11/23 21:47:01 by jmouline         ###   ########.fr       */
+/*   Created: 2022/12/03 13:51:30 by jmouline          #+#    #+#             */
+/*   Updated: 2022/12/03 20:38:03 by jmouline         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "get_next_line.h"
-#include <fcntl.h>
-#include <stdio.h>
 
-char	*ft_realloc(char *buffer, size_t size)
+char	*ft_line(char *s)
 {
-	char	*tmp;
-
-	if (!buffer)
-		return (NULL);
-	tmp = malloc(ft_strlen(buffer));
-	tmp = ft_memcpy(tmp, buffer, size);
-	free(buffer);
-	buffer = malloc(size);
-	buffer = ft_memcpy(buffer, tmp, size);
-	free(tmp);
-	return (buffer);
-}
-
-char	*ft_good_buffer(int fd, char *buffer)
-{
-	char	*tmp;
-	int		count_read;
-
-	if (!buffer)
-		buffer = malloc(1);
-	tmp = malloc(BUFFER_SIZE + 1);
-	count_read = 1;
-	if (!tmp || !buffer)
-		return (NULL);
-	while (!ft_strchr(tmp, '\n') && count_read != 0)
-	{
-		count_read = read(fd, tmp, BUFFER_SIZE);
-		if (count_read == -1)
-			return (free(tmp), NULL);
-		tmp[count_read] = 0;
-		buffer = realloc(buffer, ft_strlen(tmp) + ft_strlen(buffer));
-		if (!buffer)
-			return (NULL);
-		buffer = ft_strjoin(buffer, tmp);
-		if (!buffer)
-			return (NULL);
-	}
-	free(tmp);
-	return (buffer);
-}
-
-char	*ft_get_line(char *buffer)
-{
+	char	*dest;
+	int		pos;
 	int		i;
-	char	*line;
 
-	i = 0;
-	if (!buffer)
-		return (NULL);
-	while (buffer[i] != '\n' && buffer[i])
-		i++;
-	line = malloc(i + 2);
-	if (!line)
-		return (NULL);
-	i = 0;
-	while (buffer[i] != '\n' && buffer[i])
+	pos = ft_strchr(s, '\n');
+	if (pos < 0)
 	{
-		line[i] = buffer[i];
-		i++;
-	}
-	if (buffer[i] == '\n')
-	{
-		line[i] = buffer[i];
-		i++;
-		line[i] = 0;
+		dest = malloc(ft_strlen(s) + 1);
+		pos = ft_strlen(s);
 	}
 	else
-		line[i] = 0;
-	return (line);
+		dest = malloc(pos + 2);
+	if (!dest)
+		return (NULL);
+	i = 0;
+	while (s[i] != '\n' && s[i])
+	{
+		dest[i] = s[i];
+		i++;
+	}
+	if (s[i] == '\n')
+		dest[i++] = '\n';
+	dest[i] = '\0';
+	return (dest);
 }
 
-char	*ft_next_buffer(char *buffer)
+char	*ft_substr(char *s, unsigned int start, size_t len)
 {
-	int		i;
-	int		j;
-	char	*str;
+	char	*dest;
+	size_t	i;
 
 	i = 0;
-	j = 0;
-	if (!buffer)
+	if (!s)
 		return (NULL);
-	while (buffer[i] && buffer[i] != '\n')
-		i++;
-	str = malloc(ft_strlen(buffer) - i + 1);
-	if (!str)
+	dest = malloc(len + 1);
+	if (!dest)
 		return (NULL);
-	i++;
-	while (buffer[i])
-		str[j++] = buffer[i++];
-	str[j] = 0;
-	return (str);
+	while (i < len && start < ft_strlen(s))
+		dest[i++] = s[start++];
+	dest[i] = '\0';
+	return (dest);
+}
+
+char	*ft_new_stock(char *stock)
+{
+	char	*dest;
+	int		pos;
+
+	pos = ft_strchr(stock, '\n');
+	if (pos < 1 && ft_strlen(stock) < 1)
+		return (NULL);
+	pos++;
+	dest = ft_substr(stock, pos, ft_strlen(stock) - (pos - 1));
+	if (stock[0] == '\0')
+		dest[0] = '\0';
+	free (stock);
+	return (dest);
+}
+
+int	ft_get_buffer(int fd, char **stock, int count_read)
+{
+	char	*buffer;
+
+	buffer = malloc(BUFFER_SIZE + 1);
+	if (fd < 0 || BUFFER_SIZE <= 0 || !buffer || !stock)
+		return (0);
+	while (ft_strchr(*stock, '\n') < 0 && count_read != 0)
+	{
+		count_read = read(fd, buffer, BUFFER_SIZE);
+		if (count_read == -1)
+			return (free(buffer), 0);
+		buffer[count_read] = '\0';
+		*stock = ft_strjoin(*stock, buffer);
+		if (!stock)
+		{
+			free(*stock);
+			break ;
+		}
+	}
+	free(buffer);
+	return (count_read);
 }
 
 char	*get_next_line(int fd)
 {
 	char		*line;
-	static char	*buffer_final;
+	static char	*stock;
+	int			count_read;
 
-	if (!fd || BUFFER_SIZE <= 0)
+	if (fd < 0 || BUFFER_SIZE <= 0)
 		return (NULL);
-	buffer_final = ft_good_buffer(fd, buffer_final);
-	if (!buffer_final)
-		return (NULL);
-	line = ft_get_line(buffer_final);
+	count_read = 1;
+	if (!stock)
+	{
+		stock = malloc(1);
+		stock[0] = '\0';
+		if (!stock)
+			return (NULL);
+	}
+	count_read = ft_get_buffer(fd, &stock, count_read);
+	line = ft_line(stock);
+	if (count_read == 0 && !stock)
+		return(free(stock), NULL);
+	else
+		stock = ft_new_stock(stock);
 	if (!line)
-		return (NULL);
-	buffer_final = ft_next_buffer(buffer_final);
-	if (!buffer_final)
 		return (NULL);
 	return (line);
 }
-
 
 #include <fcntl.h>
 #include <stdio.h>
 int main()
 {
 	int fd;
-	int i = 0;
+	int i = 1;
 	fd = open("test.txt", O_RDONLY);
-	char *test;
-	while (i < 11)
+	while (i < 10)
 	{
-		test = get_next_line(fd);
-		if (!test)
-			return (printf("Plus rien à afficher !\n"));
-		printf("ligne %d : %s\n", i + 1, test);	
-		free(test);
+		printf(": %s", get_next_line(fd));
 		i++;
 	}
 }
