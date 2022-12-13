@@ -1,31 +1,23 @@
-/* ************************************************************************** */
-/*                                                                            */
-/*                                                        :::      ::::::::   */
-/*   get_next_line_utils.c                              :+:      :+:    :+:   */
-/*                                                    +:+ +:+         +:+     */
-/*   By: jmouline <jul.moulines@free.fr>            +#+  +:+       +#+        */
-/*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2022/12/03 13:54:25 by jmouline          #+#    #+#             */
-/*   Updated: 2022/12/03 20:31:06 by jmouline         ###   ########.fr       */
-/*                                                                            */
-/* ************************************************************************** */
-
 #include "get_next_line.h"
 
-int	ft_strchr(const char *s, int c)
+char	*ft_strdup(const char *s)
 {
-	int	i;
+	int		len;
+	char	*dest;
+	int		i;
 
 	i = 0;
-	if (!s)
-		return (-2);
-	while (s[i])
+	len = ft_strlen(s);
+	dest = malloc(len + 1);
+	if (!(dest))
+		return (NULL);
+	while (i < len)
 	{
-		if (s[i] == (char)c)
-			return (i);
+		dest[i] = s[i];
 		i++;
 	}
-	return (-1);
+	dest[i] = 0;
+	return (dest);
 }
 
 static char	*ft_strjoin_normed(const char *s1, const char *s2, char *dest)
@@ -37,9 +29,9 @@ static char	*ft_strjoin_normed(const char *s1, const char *s2, char *dest)
 	if (!dest)
 		return (NULL);
 	if (!s1)
-		return ((char *)s2);
+		return (ft_strdup(s2));
 	if (!s2)
-		return ((char *)s1);
+		return (ft_strdup(s1));
 	len_s1 = ft_strlen(s1);
 	len_s2 = ft_strlen(s2);
 	i = 0;
@@ -66,9 +58,9 @@ char	*ft_strjoin(const char *s1, const char *s2)
 
 	i = 0;
 	if (!s1)
-		return ((char *)s2);
+		return (ft_strdup(s2));
 	if (!s2)
-		return ((char *)s1);
+		return (ft_strdup(s1));
 	len_s1 = ft_strlen(s1);
 	len_s2 = ft_strlen(s2);
 	dest = malloc(len_s1 + len_s2 + 1);
@@ -79,6 +71,7 @@ char	*ft_strjoin(const char *s1, const char *s2)
 	dest = ft_strjoin_normed(s1, s2, dest);
 	if (!dest)
 		return (NULL);
+	free((void *)s1);
 	return (dest);
 }
 
@@ -90,4 +83,23 @@ size_t	ft_strlen(const char *s)
 	while (s[i])
 		i++;
 	return (i);
+}
+
+char	*ft_strchr(const char *s, int c)
+{
+	if (!s)
+		return (NULL);
+	if ((char)c == 0)
+	{
+		while (*s)
+			s++;
+		return ((char *)s);
+	}
+	while (*s)
+	{
+		if (*s == (char)c)
+			return ((char *)s);
+		s++;
+	}
+	return (NULL);
 }
