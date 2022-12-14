@@ -1,9 +1,3 @@
-Bonjour MR, Je veux tester ma fonction
-marche elle ?
-ou pas
-c'est 
-
-une
-bonne question |
-.
-Allons nous avoir la réponse,
+Je veux
+tester
+une phrase

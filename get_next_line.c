@@ -1,94 +1,80 @@
-/* ************************************************************************** */
-/*                                                                            */
-/*                                                        :::      ::::::::   */
-/*   get_next_line.c                                    :+:      :+:    :+:   */
-/*                                                    +:+ +:+         +:+     */
-/*   By: jmouline <jmouline@student.42.fr>          +#+  +:+       +#+        */
-/*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2022/12/03 13:51:30 by jmouline          #+#    #+#             */
-/*   Updated: 2022/12/14 05:12:02 by jmouline         ###   ########.fr       */
-/*                                                                            */
-/* ************************************************************************** */
-
 #include "get_next_line.h"
 
-char	*ft_line(char *s)
+int	ft_read(int fd, char **stock, int count_read)
 {
-	char	*dest;
-	int		pos;
-	int		i;
+	char	*buff;
 
-	if (*s == 0)
-		return (free(s), NULL);
-	pos = ft_strchr(s, '\n');
-	if (pos < 0)
-		dest = malloc(ft_strlen(s) + 1);
-	else
-		dest = malloc(pos + 2);
-	if (!dest)
-		return (NULL);
-	i = 0;
-	dest[pos + 1] = '\0';
-	while (s[i] != '\n' && s[i])
-	{
-		dest[i] = s[i];
-		i++;
-	}
-	if (s[i] == '\n')
-		dest[i] = '\n';
-	return (dest);
-}
-
-char	*ft_substr(char *s, unsigned int start, size_t len)
-{
-	char	*dest;
-	size_t	i;
-
-	i = 0;
-	if (!s)
-		return (NULL);
-	dest = malloc(len + 1);
-	if (!dest)
-		return (NULL);
-	while (i < len && start < ft_strlen(s))
-		dest[i++] = s[start++];
-	dest[i] = '\0';
-	return (dest);
-}
-
-char	*ft_new_stock(char *stock)
-{
-	char	*dest;
-	int		pos;
-
-	pos = ft_strchr(stock, '\n');
-	if (pos < 1 && ft_strlen(stock) < 1)
-		return (NULL);
-	pos++;
-	dest = ft_substr(stock, pos, ft_strlen(stock));
-	if (dest[0] == '\0' )
-		dest[0] = '\0';
-	free (stock);
-	return (dest);
-}
-
-int	ft_get_buffer(int fd, char **stock, int count_read)
-{
-	char	*buffer;
-
-	buffer = malloc(BUFFER_SIZE + 1);
 	if (fd < 0 || BUFFER_SIZE <= 0)
 		return (0);
-	while (ft_strchr(*stock, '\n') < 0 && count_read != 0)
+	while (!ft_strchr(*stock, '\n') && count_read)
 	{
-		count_read = read(fd, buffer, BUFFER_SIZE);
+		buff = malloc(BUFFER_SIZE + 1);
+		if (!buff)
+			return (0);
+		count_read = read(fd, buff, BUFFER_SIZE);
 		if (count_read == -1)
-			return (free(buffer), 0);
-		buffer[count_read] = '\0';
-		*stock = ft_strjoin(*stock, buffer);
+			return (free(buff), free(*stock), 0);
+		buff[count_read] = '\0';
+		*stock = ft_strjoin(*stock, buff);
 	}
-	free(buffer);
 	return (count_read);
+}
+
+char	*ft_get_line(char *stock)
+{
+	int	i;
+	int	j;
+	char	*dest;
+
+	j = 0;
+	i = 0;
+	if (!stock || !stock[i])
+		return (stock = NULL, free(stock), NULL);
+	while (stock[i] != '\n' && stock[i])
+		i++;
+	if (stock[i] == '\n')
+		i++;
+	dest = malloc(i + 1);
+	if (!dest)
+		return (free(stock), NULL);
+	i = 0;
+	while (stock[j] != '\n' && stock[j])
+		dest[i++] = stock[j++];
+	dest[i] = stock[j];
+	if (dest[i] != '\0')
+		dest[++i] = '\0';
+	// stock = NULL;
+	// free(stock);
+	return (dest);
+}
+
+char	*ft_new_stock(char *stock, int count_read)
+{
+	char	*dest;
+	int	i;
+	int	j;
+
+	j = 0;
+	if (count_read == 0)
+		return (free(stock), NULL);
+	while (*stock != '\n' && *stock)
+		stock++;
+	if (*stock == '\0')
+		return (free(stock), NULL);
+	stock++;
+	while (stock[j])
+		j++;
+	dest = malloc(j + 1);
+	if (!dest)
+		return (free(stock), NULL);
+	dest[j] = '\0';
+	j = 0;
+	i = 0;
+	while (stock[j])
+		dest[j++] = stock[i++];
+	stock = NULL;
+	free(stock);
+	return (dest);
 }
 
 char	*get_next_line(int fd)
@@ -97,27 +83,17 @@ char	*get_next_line(int fd)
 	static char	*stock;
 	int			count_read;
 
-	if (fd < 0 || BUFFER_SIZE <= 0)
-		return (NULL);
 	count_read = 1;
-	if (!stock)
-	{
-		stock = malloc(1);
-		stock[0] = '\0';
-	}
-	count_read = ft_get_buffer(fd, &stock, count_read);
-	line = ft_line(stock);
+	if (fd < 0 || BUFFER_SIZE <= 0)
+		return (free(stock), NULL);
+	count_read = ft_read(fd, &stock, count_read);
+	line = ft_get_line(stock);
+	stock = ft_new_stock(stock, count_read);
 	if (!line)
 		return (NULL);
-	if (count_read == 0)
-	{
-		free(stock);
-		stock = NULL;
-	}
-	else
-		stock = ft_new_stock(stock);
 	return (line);
 }
+
 
 #include <fcntl.h>
 #include <stdio.h>
@@ -133,5 +109,6 @@ int main()
 		free(test);
 		test = get_next_line(fd);
 	}
+	free(test);
 	close(fd);
 }
