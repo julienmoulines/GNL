@@ -1,16 +1,16 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   get_next_line.c                                    :+:      :+:    :+:   */
+/*   get_next_line_bonus.c                              :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: jmouline <jmouline@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/12/03 13:51:30 by jmouline          #+#    #+#             */
-/*   Updated: 2022/12/14 05:12:02 by jmouline         ###   ########.fr       */
+/*   Updated: 2022/12/12 17:50:22 by jmouline         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "get_next_line.h"
+#include "get_next_line_bonus.h"
 
 char	*ft_line(char *s)
 {
@@ -94,44 +94,60 @@ int	ft_get_buffer(int fd, char **stock, int count_read)
 char	*get_next_line(int fd)
 {
 	char		*line;
-	static char	*stock;
+	static char	*stock[1024];
 	int			count_read;
 
 	if (fd < 0 || BUFFER_SIZE <= 0)
 		return (NULL);
 	count_read = 1;
-	if (!stock)
+	if (!stock[fd])
 	{
-		stock = malloc(1);
-		stock[0] = '\0';
+		stock[fd] = malloc(1);
+		stock[fd][0] = '\0';
 	}
-	count_read = ft_get_buffer(fd, &stock, count_read);
-	line = ft_line(stock);
+	count_read = ft_get_buffer(fd, &stock[fd], count_read);
+	line = ft_line(stock[fd]);
 	if (!line)
 		return (NULL);
 	if (count_read == 0)
 	{
-		free(stock);
-		stock = NULL;
+		free(stock[fd]);
+		stock[fd] = NULL;
 	}
 	else
-		stock = ft_new_stock(stock);
+		stock[fd] = ft_new_stock(stock[fd]);
 	return (line);
 }
-
+/*
 #include <fcntl.h>
 #include <stdio.h>
 int main()
 {
 	int fd;
+	int fd2;
 	fd = open("test.txt", O_RDONLY);
+	fd2 = open("test2.txt", O_RDONLY);
 	char *test;
+	char *test2;
+	test2 = get_next_line(fd2);
 	test = get_next_line(fd);
 	while (test)
 	{
 		printf(": %s", test);
 		free(test);
 		test = get_next_line(fd);
+	
 	}
-	close(fd);
-}
+	free(test);
+	printf("\n");
+	printf("\n");
+		close(fd);
+	while (test2)
+	{
+		printf(": %s", test2);		
+		free(test2);
+		test2 = get_next_line(fd2);
+	}
+	free(test2);
+	close(fd2);
+}*/
