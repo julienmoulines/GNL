@@ -52,27 +52,34 @@ char	*ft_get_line(char *stock)
 char	*ft_new_stock(char *stock, int count_read)
 {
 	char	*dest;
+	char	*to_free;
 	int	i;
 	int	j;
 
 	j = 0;
+	to_free = stock;
 	if (count_read == 0)
 		return (free(stock), NULL);
 	while (*stock != '\n' && *stock)
 		stock++;
-	if (*stock == '\0')
-		return (free(stock), NULL);
 	stock++;
 	while (stock[j])
 		j++;
 	dest = malloc(j + 1);
 	if (!dest)
-		return (free(stock), free(dest), NULL);
+	{
+		free(dest);
+		free(stock);
+		return (NULL);
+	}
+		
 	dest[j] = '\0';
 	j = 0;
 	i = 0;
 	while (stock[j])
 		dest[j++] = stock[i++];
+	//stock = NULL;
+	free(to_free);
 	return (dest);
 }
 
@@ -94,20 +101,21 @@ char	*get_next_line(int fd)
 }
 
 
-// #include <fcntl.h>
-// #include <stdio.h>
-// int main()
-// {
-// 	int fd;
-// 	fd = open("test.txt", O_RDONLY);
-// 	char *test;
-// 	test = get_next_line(fd);
-// 	while (test)
-// 	{
-// 		printf(": %s", test);
-// 		free(test);
-// 		test = get_next_line(fd);
-// 	}
-// 	free(test);
-// 	close(fd);
-// }
+#include <fcntl.h>
+#include <stdio.h>
+int main()
+{
+	int fd;
+	fd = open("test.txt", O_RDONLY);
+	char *test;
+	test = get_next_line(fd);
+	while (test)
+	{
+		printf(": %s", test);
+		free(test);
+		test = get_next_line(fd);
+	}
+	//free(test);
+	close(fd);
+	return 0;
+}
