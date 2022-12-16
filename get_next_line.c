@@ -6,8 +6,10 @@ int	ft_read(int fd, char **stock, int count_read)
 
 	if (fd < 0 || BUFFER_SIZE <= 0)
 		return (0);
+	buff = malloc(BUFFER_SIZE + 1);
 	while (!ft_strchr(*stock, '\n') && count_read)
 	{
+		free(buff);
 		buff = malloc(BUFFER_SIZE + 1);
 		if (!buff)
 			return (0);
@@ -17,6 +19,7 @@ int	ft_read(int fd, char **stock, int count_read)
 		buff[count_read] = '\0';
 		*stock = ft_strjoin(*stock, buff);
 	}
+	free(buff);
 	return (count_read);
 }
 
@@ -29,22 +32,20 @@ char	*ft_get_line(char *stock)
 	j = 0;
 	i = 0;
 	if (!stock || !stock[i])
-		return (stock = NULL, free(stock), NULL);
+		return (NULL);
 	while (stock[i] != '\n' && stock[i])
 		i++;
 	if (stock[i] == '\n')
 		i++;
 	dest = malloc(i + 1);
 	if (!dest)
-		return (free(stock), NULL);
+		return (NULL);
 	i = 0;
 	while (stock[j] != '\n' && stock[j])
 		dest[i++] = stock[j++];
 	dest[i] = stock[j];
 	if (dest[i] != '\0')
 		dest[++i] = '\0';
-	// stock = NULL;
-	// free(stock);
 	return (dest);
 }
 
@@ -66,14 +67,12 @@ char	*ft_new_stock(char *stock, int count_read)
 		j++;
 	dest = malloc(j + 1);
 	if (!dest)
-		return (free(stock), NULL);
+		return (free(stock), free(dest), NULL);
 	dest[j] = '\0';
 	j = 0;
 	i = 0;
 	while (stock[j])
 		dest[j++] = stock[i++];
-	stock = NULL;
-	free(stock);
 	return (dest);
 }
 
@@ -95,20 +94,20 @@ char	*get_next_line(int fd)
 }
 
 
-#include <fcntl.h>
-#include <stdio.h>
-int main()
-{
-	int fd;
-	fd = open("test.txt", O_RDONLY);
-	char *test;
-	test = get_next_line(fd);
-	while (test)
-	{
-		printf(": %s", test);
-		free(test);
-		test = get_next_line(fd);
-	}
-	free(test);
-	close(fd);
-}
+// #include <fcntl.h>
+// #include <stdio.h>
+// int main()
+// {
+// 	int fd;
+// 	fd = open("test.txt", O_RDONLY);
+// 	char *test;
+// 	test = get_next_line(fd);
+// 	while (test)
+// 	{
+// 		printf(": %s", test);
+// 		free(test);
+// 		test = get_next_line(fd);
+// 	}
+// 	free(test);
+// 	close(fd);
+// }

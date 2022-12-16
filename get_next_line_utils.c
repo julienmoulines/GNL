@@ -29,11 +29,7 @@ static char	*ft_strjoin_normed(char *s1, char *s2, char *dest)
 	size_t	i;
 
 	if (!dest)
-		return (free(s1), NULL);
-	if (!s1)
-		return (free(s1), ft_strdup(s2));
-	if (!s2)
-		return (free(s1), NULL);
+		return (free(s1), free(s2), NULL);
 	len_s1 = ft_strlen(s1);
 	len_s2 = ft_strlen(s2);
 	i = 0;
@@ -48,8 +44,7 @@ static char	*ft_strjoin_normed(char *s1, char *s2, char *dest)
 		while (s2[len_s1])
 			dest[i++] = s2[len_s1++];
 	}
-	free(s1);
-	free(s2);
+	//free(s1);
 	return (dest);
 }
 
@@ -62,7 +57,7 @@ char	*ft_strjoin(char *s1, char *s2)
 
 	i = 0;
 	if (!s1)
-		return (free(s1), ft_strdup(s2));
+		return (ft_strdup(s2));
 	len_s1 = ft_strlen(s1);
 	len_s2 = ft_strlen(s2);
 	dest = malloc(len_s1 + len_s2 + 1);
@@ -72,7 +67,8 @@ char	*ft_strjoin(char *s1, char *s2)
 		dest[i++] = '\0';
 	dest = ft_strjoin_normed(s1, s2, dest);
 	if (!dest)
-		return (NULL);
+		return (free(s2), NULL);
+	free(s1);
 	return (dest);
 }
 
