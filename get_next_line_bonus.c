@@ -1,12 +1,12 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   get_next_line.c                                    :+:      :+:    :+:   */
+/*   get_next_line_bonus.c                              :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: jmouline <jmouline@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/12/16 23:57:18 by jmouline          #+#    #+#             */
-/*   Updated: 2022/12/17 01:34:25 by jmouline         ###   ########.fr       */
+/*   Updated: 2022/12/17 01:34:03 by jmouline         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -90,15 +90,15 @@ char	*ft_new_stock(char *stock, int count_read)
 char	*get_next_line(int fd)
 {
 	char		*line;
-	static char	*stock;
+	static char	*stock[1024];
 	int			count_read;
 
 	count_read = 1;
 	if (fd < 0 || BUFFER_SIZE <= 0)
-		return (free(stock), NULL);
-	count_read = ft_read(fd, &stock, count_read);
-	line = ft_get_line(stock);
-	stock = ft_new_stock(stock, count_read);
+		return (free(stock[fd]), NULL);
+	count_read = ft_read(fd, &stock[fd], count_read);
+	line = ft_get_line(stock[fd]);
+	stock[fd] = ft_new_stock(stock[fd], count_read);
 	if (!line)
 		return (NULL);
 	return (line);
