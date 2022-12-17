@@ -6,11 +6,11 @@
 /*   By: jmouline <jmouline@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/12/16 23:57:18 by jmouline          #+#    #+#             */
-/*   Updated: 2022/12/17 01:34:03 by jmouline         ###   ########.fr       */
+/*   Updated: 2022/12/17 03:04:12 by jmouline         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "get_next_line.h"
+#include "get_next_line_bonus.h"
 
 int	ft_read(int fd, char **stock, int count_read)
 {
@@ -25,9 +25,11 @@ int	ft_read(int fd, char **stock, int count_read)
 			return (0);
 		count_read = read(fd, buff, BUFFER_SIZE);
 		if (count_read == -1)
-			return (free(buff), free(*stock), 0);
+			return (free(buff), free(*stock), -1);
 		buff[count_read] = '\0';
 		*stock = ft_strjoin(*stock, buff);
+		if (!*stock)
+			return (free(buff), 0);
 	}
 	free(buff);
 	return (count_read);
@@ -69,7 +71,7 @@ char	*ft_new_stock(char *stock, int count_read)
 	j = 0;
 	to_free = stock;
 	if (count_read == 0)
-		return (free(stock), NULL);
+		return (free(to_free), NULL);
 	while (*stock != '\n' && *stock)
 		stock++;
 	stock++;
@@ -77,7 +79,7 @@ char	*ft_new_stock(char *stock, int count_read)
 		j++;
 	dest = malloc(j + 1);
 	if (!dest)
-		return (free(stock), NULL);
+		return (free(to_free), NULL);
 	dest[j] = '\0';
 	j = 0;
 	i = 0;
@@ -95,8 +97,10 @@ char	*get_next_line(int fd)
 
 	count_read = 1;
 	if (fd < 0 || BUFFER_SIZE <= 0)
-		return (free(stock[fd]), NULL);
+		return (NULL);
 	count_read = ft_read(fd, &stock[fd], count_read);
+	if (count_read < 0)
+		return (NULL);
 	line = ft_get_line(stock[fd]);
 	stock[fd] = ft_new_stock(stock[fd], count_read);
 	if (!line)
