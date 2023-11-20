@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   get_next_line_bonus.c                              :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: jmouline <jul.moulines@free.fr>            +#+  +:+       +#+        */
+/*   By: jmouline <jmouline@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/12/16 23:57:18 by jmouline          #+#    #+#             */
-/*   Updated: 2022/12/18 14:57:18 by jmouline         ###   ########.fr       */
+/*   Updated: 2022/12/17 03:04:12 by jmouline         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -96,7 +96,7 @@ char	*get_next_line(int fd)
 	int			count_read;
 
 	count_read = 1;
-	if (fd < 0 || BUFFER_SIZE <= 0 || fd > 1023)
+	if (fd < 0 || BUFFER_SIZE <= 0)
 		return (NULL);
 	count_read = ft_read(fd, &stock[fd], count_read);
 	if (count_read < 0)
